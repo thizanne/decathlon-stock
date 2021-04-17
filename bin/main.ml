@@ -31,11 +31,6 @@ module Arg = struct
 
 end
 
-let stock_is_empty stock =
-  List.for_all
-    ~f:(fun (_, one) -> String.equal one "0")
-    stock
-
 let get_soup url =
   Cohttp_lwt_unix.Client.get @@ Uri.of_string url >>= fun (_, body) ->
   Cohttp_lwt.Body.to_string body >>|
@@ -84,7 +79,15 @@ let run_in_async f =
       |> Result.join
   end ()
 
-let sendmail item stock url mail =
+let fetch url sizes =
+  let%bind soup = get_soup url in
+  let item = parse_item_name soup in
+  let stock = parse_stock soup in
+  let stock = filter_stock sizes stock in
+  Lwt.return (item, stock)
+
+let send_mail ~mail ~item ~url stock =
+  let%bind () = Lwt_fmt.printf "@[Sending mail...@]@," in
   let subject = Format.sprintf "Stock disponible pour %s !" item in
   let content = Format.asprintf "@[<v>@[<v>%a@]@ %s@]" pp_item_stock (item, stock) url in
   run_in_async @@ fun () ->
@@ -93,29 +96,56 @@ let sendmail item stock url mail =
     ~subject
     (Simplemail.Content.text_utf8 content)
 
-let main url sizes mail : unit =
-  Lwt_main.run @@
-  let%bind soup = get_soup url in
-  let item = parse_item_name soup in
-  let stock = parse_stock soup in
-  let stock = filter_stock sizes stock in
-  let%bind () =
-    match mail with
-    | Some mail when not (stock_is_empty stock) ->
-      sendmail item stock url mail >>|
-      Or_error.ok_exn
-    | _ -> Lwt.return ()
-  in
-  Lwt_fmt.printf "%a@." pp_item_stock (item, stock)
+let stock_has_size stock size =
+  match List.Assoc.find ~equal:String.Caseless.equal stock size with
+  | None
+  | Some "0" -> false
+  | Some _ -> true
 
-let main_term : unit Cmdliner.Term.t =
+let notify ~mail ~item ~url ~old_stock new_stock =
+  let cutoff =
+    List.exists
+      ~f:(fun (size, stock) ->
+          (* Notify iff some size is in stock only on the new one *)
+          String.(stock <> "0") &&
+          not @@ stock_has_size old_stock size)
+      new_stock in
+  match mail with
+  | Some mail when cutoff ->
+    send_mail ~mail ~item ~url new_stock >>|
+    Or_error.ok_exn
+  | _ -> Lwt.return ()
+
+let fetch_and_inform ~mail ~url ~sizes ~old_stock =
+  let%bind (item, new_stock) =
+    fetch url sizes in
+  let%bind () =
+    Lwt_fmt.printf "%a@." pp_item_stock (item, new_stock) in
+  let%bind () =
+    notify ~mail ~item ~url ~old_stock new_stock in
+  Lwt.return new_stock
+
+let rec loop ~mail ~url ~sizes old_stock =
+  let fifteen_minutes = 15. *. 60. in
+  let%bind new_stock =
+    fetch_and_inform ~mail ~url ~sizes ~old_stock in
+  let%bind () = Lwt_unix.sleep fifteen_minutes in
+  loop ~mail ~url ~sizes new_stock >>|
+  never_returns
+
+let main url sizes mail =
+  (* Start with fully empty stock *)
+  Lwt_main.run @@
+  loop ~mail ~url ~sizes []
+
+let main_term : never_returns Cmdliner.Term.t =
   Cmdliner.Term.(const main $ Arg.url $ Arg.sizes $ Arg.mail)
 
 let cmd_info =
   let open Cmdliner in
   let doc = "Check stock for a Decathlon product." in
   let exits = Term.default_exits in
-  Term.info "decathlon-stock" ~version:"0.1.0" ~doc ~exits
+  Term.info "decathlon-stock" ~version:"0.2.0" ~doc ~exits
 
 let () =
   Cmdliner.Term.(exit @@ eval (main_term, cmd_info))
