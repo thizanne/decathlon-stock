@@ -1,0 +1,16 @@
+(executable
+ (public_name decathlon-stock)
+ (name main)
+ (libraries
+  core_kernel
+  cmdliner
+  async_smtp
+  cohttp-lwt-unix
+  cohttp-lwt
+  lambdasoup
+  fmt
+  ppx_let
+  )
+ (preprocess (pps ppx_let))
+ (flags (:standard -open Core_kernel))
+ )
