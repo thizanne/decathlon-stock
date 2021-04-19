@@ -29,6 +29,12 @@ module Arg = struct
     let info_ = Arg.info ["mail"] ~docv:"MAIL" ~doc in
     Arg.(value & opt (some string) None & info_)
 
+  let period =
+    let default = 5 in
+    let doc = "Period in minutes between consecutive checks." in
+    let info_ = Arg.info ["period"] ~docv:"MINUTES" ~doc in
+    Arg.(value & opt int default & info_)
+
 end
 
 let get_soup url =
@@ -125,21 +131,21 @@ let fetch_and_inform ~mail ~url ~sizes ~old_stock =
     notify ~mail ~item ~url ~old_stock new_stock in
   Lwt.return new_stock
 
-let rec loop ~mail ~url ~sizes old_stock =
-  let fifteen_minutes = 15. *. 60. in
+let rec loop ~mail ~url ~sizes ~period old_stock =
+  let period_seconds = float period *. 60. in
   let%bind new_stock =
     fetch_and_inform ~mail ~url ~sizes ~old_stock in
-  let%bind () = Lwt_unix.sleep fifteen_minutes in
-  loop ~mail ~url ~sizes new_stock >>|
+  let%bind () = Lwt_unix.sleep period_seconds in
+  loop ~mail ~url ~sizes ~period new_stock >>|
   never_returns
 
-let main url sizes mail =
+let main url sizes mail period =
   (* Start with fully empty stock *)
   Lwt_main.run @@
-  loop ~mail ~url ~sizes []
+  loop ~mail ~url ~sizes ~period []
 
 let main_term : never_returns Cmdliner.Term.t =
-  Cmdliner.Term.(const main $ Arg.url $ Arg.sizes $ Arg.mail)
+  Cmdliner.Term.(const main $ Arg.url $ Arg.sizes $ Arg.mail $ Arg.period)
 
 let cmd_info =
   let open Cmdliner in
