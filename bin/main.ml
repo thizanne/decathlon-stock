@@ -21,7 +21,7 @@ module Arg = struct
 
   let sizes =
     let doc = "Sizes to get stock of. Case-insensitive. If not provided, all will be listed." in
-    let info_ = Arg.info ["s"; "sizes"] ~doc ~docv:"SIZES" in
+    let info_ = Arg.info ["sizes"] ~doc ~docv:"SIZES" in
     Arg.(value & (opt (some (list string)) None) & info_)
 
   let mail =
