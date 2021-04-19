@@ -93,7 +93,7 @@ let fetch url sizes =
   Lwt.return (item, stock)
 
 let send_mail ~mail ~item ~url stock =
-  let%bind () = Lwt_fmt.printf "@[Sending mail...@]@," in
+  let%bind () = Lwt_fmt.printf "@[Sending mail...@]@." in
   let subject = Format.sprintf "Stock disponible pour %s !" item in
   let content = Format.asprintf "@[<v>@[<v>%a@]@ %s@]" pp_item_stock (item, stock) url in
   run_in_async @@ fun () ->
