@@ -67,14 +67,14 @@ let filter_stock specified_sizes stock =
       ~f:(fun (size, _) -> List.mem ~equal:String.Caseless.equal sizes size)
       stock
 
-let pp_size_stock fmt (size, stock) =
-  Format.fprintf fmt "%s : %s" size stock
+let pp_size_stock ppf (size, stock) =
+  Format.fprintf ppf "%s : %s" size stock
 
 let pp_all_stock =
   Fmt.list @@ Fmt.box pp_size_stock
 
-let pp_item_stock fmt (item, stock) =
-  Format.fprintf fmt "Stock pour %s :@ @[<v>%a@]"
+let pp_item_stock ppf (item, stock) =
+  Format.fprintf ppf "Stock pour %s :@ @[<v>%a@]"
     item pp_all_stock stock
 
 let run_in_async f =
