@@ -10,6 +10,7 @@
   lambdasoup
   fmt
   ppx_let
+  yojson
   )
  (preprocess (pps ppx_let))
  (flags (:standard -open Core_kernel))

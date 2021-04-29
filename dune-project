@@ -15,5 +15,6 @@
   (lambdasoup (>= ~~))
   (fmt (>= ~~))
   (ppx_let (>= ~~))
+  (yojson (>= ~~))
   )
  )
