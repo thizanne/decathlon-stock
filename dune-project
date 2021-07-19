@@ -6,6 +6,9 @@
  (name decathlon-stock)
  (synopsis "Check Decathlon online stock availability")
  (maintainers "Thibault Suzanne <thi.suzanne@gmail.com>")
+ (authors "Thibault Suzanne <thi.suzanne@gmail.com>")
+ (homepage "https://github.com/thizanne/decathlon-stock/")
+ (bug_reports "https://github.com/thizanne/decathlon-stock/issues")
  (depends
   (core_kernel (>= ~~))
   (cmdliner (>= ~~))
