@@ -7,15 +7,15 @@ homepage: "https://github.com/thizanne/decathlon-stock/"
 bug-reports: "https://github.com/thizanne/decathlon-stock/issues"
 depends: [
   "dune" {>= "2.8"}
-  "core_kernel" {>= "~~"}
-  "cmdliner" {>= "~~"}
-  "async_smtp" {>= "~~"}
-  "cohttp-lwt-unix" {>= "~~"}
-  "cohttp-lwt" {>= "~~"}
-  "lambdasoup" {>= "~~"}
-  "fmt" {>= "~~"}
-  "ppx_let" {>= "~~"}
-  "yojson" {>= "~~"}
+  "core_kernel"
+  "cmdliner"
+  "async_smtp"
+  "cohttp-lwt-unix"
+  "cohttp-lwt"
+  "lambdasoup"
+  "fmt"
+  "ppx_let"
+  "yojson"
   "odoc" {with-doc}
 ]
 build: [

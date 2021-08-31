@@ -10,14 +10,14 @@
  (homepage "https://github.com/thizanne/decathlon-stock/")
  (bug_reports "https://github.com/thizanne/decathlon-stock/issues")
  (depends
-  (core_kernel (>= ~~))
-  (cmdliner (>= ~~))
-  (async_smtp (>= ~~))
-  (cohttp-lwt-unix (>= ~~))
-  (cohttp-lwt (>= ~~))
-  (lambdasoup (>= ~~))
-  (fmt (>= ~~))
-  (ppx_let (>= ~~))
-  (yojson (>= ~~))
+  core_kernel
+  cmdliner
+  async_smtp
+  cohttp-lwt-unix
+  cohttp-lwt
+  lambdasoup
+  fmt
+  ppx_let
+  yojson
   )
  )
